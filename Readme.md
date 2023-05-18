@@ -5,11 +5,11 @@ It uses garantex.io API and beribit.com websocket
 
 ### Usage example:
 ```go
-source, err := marketdata.NewSource(Garantex)
+source, err := marketdata.NewSource(marketdata.Garantex)
 if err != nil {
     panic(err)
 }
-data, err := source.GetDOM(USDTRUB)
+data, err := source.GetDOM(marketdata.USDTRUB)
 if err != nil {
     panic(err)
 }
