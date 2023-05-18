@@ -2,15 +2,15 @@ package marketdata
 
 import "time"
 
-type Response struct {
+type DOM struct {
 	MarketPlace string
 	MarketName  string
 	Date        time.Time
-	Bids        []Position
-	Asks        []Position
+	Bids        []DOMPosition
+	Asks        []DOMPosition
 }
 
-type Position struct {
+type DOMPosition struct {
 	Price  float64
 	Amount float64
 	Type   string

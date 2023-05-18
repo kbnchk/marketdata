@@ -7,24 +7,18 @@ import (
 
 // TODO!
 
-func TestGetGarantexData(t *testing.T) {
-	got, err := GetGarantexData(USDTRUB)
+func TestGetData(t *testing.T) {
+	source, err := NewSource(Garantex)
+	if err != nil {
+		t.Errorf("MarketDataSource creating error = %v", err)
+		return
+	}
+	got, err := source.GetDOM(USDTRUB)
 	if err != nil {
 		t.Errorf("GetGarantexData() error = %v", err)
 		return
 	}
-	if reflect.DeepEqual(got, Response{}) {
-		t.Error("GetGarantexData() returned empty data")
-	}
-}
-
-func TestGetBeribitData(t *testing.T) {
-	got, err := GetBeribitData(USDTRUB)
-	if err != nil {
-		t.Errorf("GetGarantexData() error = %v", err)
-		return
-	}
-	if reflect.DeepEqual(got, Response{}) {
+	if reflect.DeepEqual(got, DOM{}) {
 		t.Error("GetGarantexData() returned empty data")
 	}
 }

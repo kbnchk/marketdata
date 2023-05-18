@@ -9,19 +9,23 @@ import (
 	"time"
 )
 
-func GetGarantexData(m Market) (Response, error) {
-	if m.String() == "unknown" {
-		return Response{}, fmt.Errorf("unknown market type")
+type garantex struct {
+	apiBaseURL string
+}
+
+func (g garantex) GetDOM(m MarketType) (DOM, error) {
+	if m.string() == "unknown" {
+		return DOM{}, fmt.Errorf("unknown market type for Garantex marketplace")
 	}
-	url := m.garantexUrl()
+	url := g.apiBaseURL + m.name()
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return Response{}, err
+		return DOM{}, err
 	}
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return Response{}, err
+		return DOM{}, err
 	}
 	defer resp.Body.Close()
 	respBody, _ := io.ReadAll(resp.Body)
@@ -30,7 +34,7 @@ func GetGarantexData(m Market) (Response, error) {
 	var model garantexResponse
 	err = json.Unmarshal(respBytes, &model)
 	if err != nil {
-		return Response{}, err
+		return DOM{}, err
 	}
 	result := model.toEntity(m)
 	return result, nil
@@ -42,17 +46,17 @@ type garantexResponse struct {
 	Asks      []garantexPosition `json:"asks"`
 }
 
-func (b garantexResponse) toEntity(m Market) Response {
-	var bids, asks []Position
+func (b garantexResponse) toEntity(m MarketType) DOM {
+	var bids, asks []DOMPosition
 	for _, p := range b.Bids {
 		bids = append(bids, p.convert())
 	}
 	for _, p := range b.Asks {
 		asks = append(asks, p.convert())
 	}
-	return Response{
+	return DOM{
 		MarketPlace: "garantex",
-		MarketName:  m.String(),
+		MarketName:  m.string(),
 		Date:        time.Unix(int64(b.Timestamp), 0),
 		Bids:        bids,
 		Asks:        asks,
@@ -67,7 +71,7 @@ type garantexPosition struct {
 	Factor string `json:"factor"`
 }
 
-func (p garantexPosition) convert() Position {
+func (p garantexPosition) convert() DOMPosition {
 	price, _ := strconv.ParseFloat(p.Price, 64)
 	amount, _ := strconv.ParseFloat(p.Amount, 64)
 	factor, _ := strconv.ParseFloat(p.Factor, 64)
@@ -79,7 +83,7 @@ func (p garantexPosition) convert() Position {
 	default:
 		pt = p.Type
 	}
-	return Position{
+	return DOMPosition{
 		Price:  price,
 		Amount: amount,
 		Type:   pt,

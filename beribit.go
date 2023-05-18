@@ -12,33 +12,37 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-func GetBeribitData(m Market) (Response, error) {
-	if m.String() == "unknown" {
-		return Response{}, fmt.Errorf("unknown market type")
+type beribit struct {
+	apiBaseURL string
+}
+
+func (b beribit) GetDOM(m MarketType) (DOM, error) {
+	if m.string() == "unknown" {
+		return DOM{}, fmt.Errorf("unknown market type for Beribit marketplace")
 	}
 	var resp beribitResponse
 	origin := "http://localhost/"
-	server := m.beribitUrl()
+	server := b.apiBaseURL + m.name()
 	conf, err := websocket.NewConfig(server, origin)
 	if err != nil {
-		return Response{}, err
+		return DOM{}, err
 	}
 	ws, err := websocket.DialConfig(conf)
 	if err != nil {
-		return Response{}, err
+		return DOM{}, err
 	}
 	fr, err := ws.NewFrameReader()
 	if err != nil {
-		return Response{}, err
+		return DOM{}, err
 	}
 	r := bufio.NewReader(fr)
 	data, err := io.ReadAll(r)
 	if err != nil {
-		return Response{}, err
+		return DOM{}, err
 	}
 	err = json.Unmarshal(data, &resp)
 	if err != nil {
-		return Response{}, err
+		return DOM{}, err
 	}
 	result := resp.toEntity(m)
 	return result, nil
@@ -50,17 +54,17 @@ type beribitResponse struct {
 	Asks      []beribitPosition `json:"Asks"`
 }
 
-func (b beribitResponse) toEntity(m Market) Response {
-	var bids, asks []Position
+func (b beribitResponse) toEntity(m MarketType) DOM {
+	var bids, asks []DOMPosition
 	for _, p := range b.Bids {
 		bids = append(bids, p.convert())
 	}
 	for _, p := range b.Asks {
 		asks = append(asks, p.convert())
 	}
-	return Response{
+	return DOM{
 		MarketPlace: "beribit",
-		MarketName:  m.String(),
+		MarketName:  m.string(),
 		Date:        time.Unix(int64(b.Timestamp), 0),
 		Bids:        bids,
 		Asks:        asks,
@@ -75,7 +79,7 @@ type beribitPosition struct {
 	Factor       float64 `json:"Factor"`
 }
 
-func (p beribitPosition) convert() Position {
+func (p beribitPosition) convert() DOMPosition {
 	var factor float64
 	var pt string
 	var rawtype string
@@ -94,7 +98,7 @@ func (p beribitPosition) convert() Position {
 	default:
 		pt = rawtype
 	}
-	return Position{
+	return DOMPosition{
 		Price:  p.ExchangeRate,
 		Amount: p.Size,
 		Type:   pt,
