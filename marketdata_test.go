@@ -8,7 +8,7 @@ import (
 // TODO!
 
 func TestGetData(t *testing.T) {
-	source, err := NewSource(Garantex)
+	source, err := NewSource(Beribit)
 	if err != nil {
 		t.Errorf("MarketDataSource creating error = %v", err)
 		return

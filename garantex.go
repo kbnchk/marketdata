@@ -47,7 +47,8 @@ type garantexResponse struct {
 }
 
 func (b garantexResponse) toEntity(m MarketType) DOM {
-	var bids, asks []DOMPosition
+	bids := make([]DOMPosition, 0, len(b.Bids))
+	asks := make([]DOMPosition, 0, len(b.Asks))
 	for _, p := range b.Bids {
 		bids = append(bids, p.convert())
 	}
