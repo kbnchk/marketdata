@@ -14,5 +14,3 @@ if err != nil {
     panic(err)
 }
 ```
-
-There is only very basic test included

@@ -39,6 +39,7 @@ func (b beribit) GetDOM(m MarketType) (DOM, error) {
 	}
 	r := bufio.NewReader(fr)
 	data, err := io.ReadAll(r)
+	fmt.Println(string(data))
 	if err != nil {
 		return DOM{}, err
 	}
@@ -51,24 +52,28 @@ func (b beribit) GetDOM(m MarketType) (DOM, error) {
 }
 
 type beribitResponse struct {
-	Timestamp float64           `json:"Timestamp"`
-	Bids      []beribitPosition `json:"Bids"`
-	Asks      []beribitPosition `json:"Asks"`
+	Depth struct {
+		MarketName string            `json:"MarketName"`
+		Timestamp  float64           `json:"Timestamp"`
+		Bids       []beribitPosition `json:"Bids"`
+		Asks       []beribitPosition `json:"Asks"`
+	} `json:"Depth"`
 }
 
 func (b beribitResponse) toEntity(m MarketType) DOM {
-	bids := make([]DOMPosition, 0, len(b.Bids))
-	asks := make([]DOMPosition, 0, len(b.Asks))
-	for _, p := range b.Bids {
+	depth := b.Depth
+	bids := make([]DOMPosition, 0, len(depth.Bids))
+	asks := make([]DOMPosition, 0, len(depth.Asks))
+	for _, p := range depth.Bids {
 		bids = append(bids, p.convert())
 	}
-	for _, p := range b.Asks {
+	for _, p := range depth.Asks {
 		asks = append(asks, p.convert())
 	}
 	return DOM{
 		MarketPlace: "beribit",
 		MarketName:  m.string(),
-		Date:        time.Unix(int64(b.Timestamp), 0),
+		Date:        time.Unix(int64(depth.Timestamp), 0),
 		Bids:        bids,
 		Asks:        asks,
 	}

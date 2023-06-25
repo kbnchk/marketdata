@@ -15,10 +15,10 @@ func TestGetData(t *testing.T) {
 	}
 	got, err := source.GetDOM(USDTRUB)
 	if err != nil {
-		t.Errorf("GetGarantexData() error = %v", err)
+		t.Errorf("error getting data = %v", err)
 		return
 	}
 	if reflect.DeepEqual(got, DOM{}) {
-		t.Error("GetGarantexData() returned empty data")
+		t.Error("returned empty data")
 	}
 }
