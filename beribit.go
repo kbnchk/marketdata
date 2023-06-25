@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -21,12 +22,13 @@ func (b beribit) GetDOM(m MarketType) (DOM, error) {
 		return DOM{}, fmt.Errorf("unknown market type for Beribit marketplace")
 	}
 	var resp beribitResponse
-	origin := "http://localhost/"
+	origin := "https://beribit.com/"
 	server := b.apiBaseURL + m.name()
 	conf, err := websocket.NewConfig(server, origin)
 	if err != nil {
 		return DOM{}, err
 	}
+	conf.Header = http.Header{"User-Agent": []string{"marketdata-app"}}
 	ws, err := websocket.DialConfig(conf)
 	if err != nil {
 		return DOM{}, err
