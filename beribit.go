@@ -39,7 +39,6 @@ func (b beribit) GetDOM(m MarketType) (DOM, error) {
 	}
 	r := bufio.NewReader(fr)
 	data, err := io.ReadAll(r)
-	fmt.Println(string(data))
 	if err != nil {
 		return DOM{}, err
 	}
