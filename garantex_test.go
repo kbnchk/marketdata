@@ -61,3 +61,25 @@ func Test_garantex_GetHistoryToDate(t *testing.T) {
 		}
 	}
 }
+
+func Test_garantex_GetHistoryFromID(t *testing.T) {
+	garantex := Garantex{
+		domURL:     "https://garantex.io/api/v2/depth",
+		historyURL: "https://garantex.io/api/v2/trades",
+	}
+
+	got, err := garantex.GetHistoryFromID(USDTRUB, 3832191)
+	if err != nil {
+		t.Errorf("garantex.GetHistoryFromID() error = %v", err)
+		return
+	}
+	if len(got) == 0 {
+		t.Error("garantex.GetHistoryFromID() returned empty data")
+		return
+	}
+	for i := 0; i < len(got)-2; i++ {
+		if got[i].ID >= got[i+1].ID {
+			t.Errorf("garantex.GetHistoryFromID() have data order errors: el[%d].ID=%d, and el[%d].ID=%d (descending order)", i, got[i].ID, i+1, got[i+1].ID)
+		}
+	}
+}

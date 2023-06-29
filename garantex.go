@@ -110,17 +110,16 @@ func (p garantexDOMPosition) toEntity() DOMPosition {
 //####################################################################
 
 func (g Garantex) GetHistoryToDate(m MarketType, earliest time.Time) ([]HistoryPosition, error) {
-
-	const limit = 1000
-
 	if m.string() == "unknown" {
 		return nil, fmt.Errorf("unknown market type for Garantex marketplace")
 	}
+
+	const limit = 1000
 	data := make([]garantexHistoryPosition, 0, limit)
 
 	//recursively gets positions until reaches earliest parameter
-	var get func(uint, *[]garantexHistoryPosition) error
-	get = func(toID uint, data *[]garantexHistoryPosition) error {
+	var getTo func(uint, *[]garantexHistoryPosition) error
+	getTo = func(toID uint, data *[]garantexHistoryPosition) error {
 		var idstring string
 
 		if toID != 0 {
@@ -153,14 +152,20 @@ func (g Garantex) GetHistoryToDate(m MarketType, earliest time.Time) ([]HistoryP
 			*data = append(*data, model...)
 			firstentity := model[len(model)-1].toEntity()
 			if firstentity.Date.After(earliest) {
-				get(firstentity.ID, data)
+				err := getTo(firstentity.ID, data)
+				if err != nil {
+					return err
+				}
 			}
 		}
 
 		return nil
 	}
 
-	get(0, &data)
+	err := getTo(0, &data)
+	if err != nil {
+		return nil, err
+	}
 
 	result := make([]HistoryPosition, 0, len(data))
 	for _, el := range data {
@@ -170,6 +175,65 @@ func (g Garantex) GetHistoryToDate(m MarketType, earliest time.Time) ([]HistoryP
 		} else {
 			break
 		}
+	}
+	return result, nil
+}
+
+func (g Garantex) GetHistoryFromID(m MarketType, id uint) ([]HistoryPosition, error) {
+
+	if m.string() == "unknown" {
+		return nil, fmt.Errorf("unknown market type for Garantex marketplace")
+	}
+
+	const limit = 1000
+	data := make([]garantexHistoryPosition, 0, limit)
+
+	var getFrom func(uint, *[]garantexHistoryPosition) error
+	getFrom = func(fromID uint, data *[]garantexHistoryPosition) error {
+
+		url := g.historyURL + "?market=" + m.name() + fmt.Sprintf("&limit=%d", limit) + fmt.Sprintf("&order_by=asc&from=%d", fromID)
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			return err
+		}
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			return err
+		}
+
+		defer resp.Body.Close()
+
+		respBody, _ := io.ReadAll(resp.Body)
+		respBytes := []byte(respBody)
+
+		var model []garantexHistoryPosition
+		err = json.Unmarshal(respBytes, &model)
+		if err != nil {
+			return err
+		}
+
+		if len(model) > 0 {
+			*data = append(*data, model...)
+			if len(model) == limit {
+				err := getFrom(uint(model[len(model)-1].ID), data)
+				if err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	}
+
+	err := getFrom(id, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]HistoryPosition, 0, len(data))
+	for _, el := range data {
+		result = append(result, el.toEntity())
 	}
 	return result, nil
 }
