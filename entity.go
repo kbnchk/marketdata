@@ -16,3 +16,11 @@ type DOMPosition struct {
 	Type   string
 	Factor float64
 }
+
+type HistoryPosition struct {
+	ID     uint
+	Date   time.Time
+	Price  float32 // цена
+	Volume float32 // сумма в базовой валюте
+	Funds  float32 // сумма в валюте котировки
+}

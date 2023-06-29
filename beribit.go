@@ -13,17 +13,24 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-type beribit struct {
-	apiBaseURL string
+type Beribit struct {
+	domURL string
+	//historyURL string
 }
 
-func (b beribit) GetDOM(m MarketType) (DOM, error) {
+func BeribitNew() Beribit {
+	return Beribit{
+		domURL: "wss://beribit.com/ws/depth/",
+	}
+}
+
+func (b Beribit) GetDOM(m MarketType) (DOM, error) {
 	if m.string() == "unknown" {
 		return DOM{}, fmt.Errorf("unknown market type for Beribit marketplace")
 	}
 	var resp beribitResponse
 	origin := "https://beribit.com/"
-	server := b.apiBaseURL + m.name()
+	server := b.domURL + m.name()
 	conf, err := websocket.NewConfig(server, origin)
 	if err != nil {
 		return DOM{}, err
