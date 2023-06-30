@@ -24,9 +24,9 @@ func Test_garantexHistoryPosition_toEntity(t *testing.T) {
 			want: HistoryPosition{
 				ID:     uint(3834759),
 				Date:   time.Date(2023, 6, 29, 13, 30, 07, 0, time.Local),
-				Price:  float32(88.48),
-				Volume: float32(10023.05),
-				Funds:  float32(886839.46),
+				Price:  88.48,
+				Volume: 10023.05,
+				Funds:  886839.46,
 			},
 		},
 	}

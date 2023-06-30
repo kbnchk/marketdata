@@ -249,14 +249,14 @@ type garantexHistoryPosition struct {
 
 func (p garantexHistoryPosition) toEntity() HistoryPosition {
 	date, _ := time.Parse(time.RFC3339, p.Date)
-	price, _ := strconv.ParseFloat(p.Price, 32)
-	volume, _ := strconv.ParseFloat(p.Volume, 32)
-	funds, _ := strconv.ParseFloat(p.Funds, 32)
+	price, _ := strconv.ParseFloat(p.Price, 64)
+	volume, _ := strconv.ParseFloat(p.Volume, 64)
+	funds, _ := strconv.ParseFloat(p.Funds, 64)
 	return HistoryPosition{
 		ID:     uint(p.ID),
 		Date:   date,
-		Price:  float32(price),
-		Volume: float32(volume),
-		Funds:  float32(funds),
+		Price:  price,
+		Volume: volume,
+		Funds:  funds,
 	}
 }
