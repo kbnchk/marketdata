@@ -1,6 +1,8 @@
 package marketdata
 
-import "time"
+import (
+	"time"
+)
 
 type DOM struct {
 	MarketPlace string
@@ -11,16 +13,14 @@ type DOM struct {
 }
 
 type DOMPosition struct {
-	Price  float64
-	Amount float64
-	Type   string
-	Factor float64
+	Price  string
+	Amount string
 }
 
 type HistoryPosition struct {
 	ID     uint
 	Date   time.Time
-	Price  float64 // цена
-	Volume float64 // сумма в базовой валюте
-	Funds  float64 // сумма в валюте котировки
+	Price  string // цена
+	Volume string // сумма в базовой валюте
+	Funds  string // сумма в валюте котировки
 }

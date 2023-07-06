@@ -6,24 +6,18 @@ type MarketType int
 
 const (
 	USDTRUB MarketType = iota
-	BTCRUB
-	USDCRUB
-	ETHRUB
-	DAIRUB
+	USDTTHB
+	USDTRTY
 )
 
 func (m MarketType) string() string {
 	switch m {
 	case USDTRUB:
 		return "USDT/RUB"
-	case BTCRUB:
-		return "BTC/RUB"
-	case USDCRUB:
-		return "USDC/RUB"
-	case ETHRUB:
-		return "ETH/RUB"
-	case DAIRUB:
-		return "DAI/RUB"
+	case USDTTHB:
+		return "USDT/THB"
+	case USDTRTY:
+		return "USDT/TRY"
 	default:
 		return "unknown"
 	}

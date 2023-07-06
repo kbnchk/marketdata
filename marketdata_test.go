@@ -9,7 +9,7 @@ import (
 // TODO!
 
 func TestGetDOM(t *testing.T) {
-	source := GarantexNew()
+	source := BinanceNew()
 	got, err := source.GetDOM(USDTRUB)
 	if err != nil {
 		t.Errorf("error getting data = %v", err)

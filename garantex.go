@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -86,22 +85,9 @@ type garantexDOMPosition struct {
 }
 
 func (p garantexDOMPosition) toEntity() DOMPosition {
-	price, _ := strconv.ParseFloat(p.Price, 64)
-	amount, _ := strconv.ParseFloat(p.Amount, 64)
-	factor, _ := strconv.ParseFloat(p.Factor, 64)
-	var pt string
-	switch p.Type {
-	case "limit":
-		pt = "Фиксированная цена"
-		// otherTypes
-	default:
-		pt = p.Type
-	}
 	return DOMPosition{
-		Price:  price,
-		Amount: amount,
-		Type:   pt,
-		Factor: factor,
+		Price:  p.Price,
+		Amount: p.Amount,
 	}
 }
 
@@ -249,14 +235,11 @@ type garantexHistoryPosition struct {
 
 func (p garantexHistoryPosition) toEntity() HistoryPosition {
 	date, _ := time.Parse(time.RFC3339, p.Date)
-	price, _ := strconv.ParseFloat(p.Price, 64)
-	volume, _ := strconv.ParseFloat(p.Volume, 64)
-	funds, _ := strconv.ParseFloat(p.Funds, 64)
 	return HistoryPosition{
 		ID:     uint(p.ID),
 		Date:   date,
-		Price:  price,
-		Volume: volume,
-		Funds:  funds,
+		Price:  p.Price,
+		Volume: p.Volume,
+		Funds:  p.Funds,
 	}
 }

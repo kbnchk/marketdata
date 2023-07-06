@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
-	"strings"
 	"time"
 
 	"golang.org/x/net/websocket"
@@ -71,10 +69,10 @@ func (b beribitResponse) toEntity(m MarketType) DOM {
 	bids := make([]DOMPosition, 0, len(depth.Bids))
 	asks := make([]DOMPosition, 0, len(depth.Asks))
 	for _, p := range depth.Bids {
-		bids = append(bids, p.convert())
+		bids = append(bids, p.toEntity())
 	}
 	for _, p := range depth.Asks {
-		asks = append(asks, p.convert())
+		asks = append(asks, p.toEntity())
 	}
 	return DOM{
 		MarketPlace: "beribit",
@@ -93,29 +91,9 @@ type beribitPosition struct {
 	Factor       float64 `json:"Factor"`
 }
 
-func (p beribitPosition) convert() DOMPosition {
-	var factor float64
-	var pt string
-	var rawtype string
-	tmp := strings.Split(p.TypeData, " ")
-	if len(tmp) > 1 {
-		rawtype = tmp[0]
-		fstr := strings.Replace(tmp[1], "%", "", -1)
-		factor, _ = strconv.ParseFloat(fstr, 64)
-	} else {
-		rawtype = p.TypeData
-	}
-	switch rawtype {
-	case "ФЦ":
-		pt = "Фиксированная цена"
-	// other types
-	default:
-		pt = rawtype
-	}
+func (p beribitPosition) toEntity() DOMPosition {
 	return DOMPosition{
-		Price:  p.ExchangeRate,
-		Amount: p.Size,
-		Type:   pt,
-		Factor: factor,
+		Price:  fmt.Sprintf("%g", p.ExchangeRate),
+		Amount: fmt.Sprintf("%g", p.Size),
 	}
 }
