@@ -7,7 +7,7 @@ type MarketType int
 const (
 	USDTRUB MarketType = iota
 	USDTTHB
-	USDTRTY
+	USDTTRY
 )
 
 func (m MarketType) string() string {
@@ -16,7 +16,7 @@ func (m MarketType) string() string {
 		return "USDT/RUB"
 	case USDTTHB:
 		return "USDT/THB"
-	case USDTRTY:
+	case USDTTRY:
 		return "USDT/TRY"
 	default:
 		return "unknown"

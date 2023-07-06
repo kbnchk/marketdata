@@ -7,7 +7,7 @@ import (
 
 func TestBinanceP2P_GetDOM(t *testing.T) {
 	source := BinanceP2PNew()
-	got, err := source.GetDOM(USDTTHB)
+	got, err := source.GetDOM(USDTTRY)
 	if err != nil {
 		t.Errorf("error getting data = %v", err)
 		return
