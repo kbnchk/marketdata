@@ -23,6 +23,14 @@ func (m MarketType) string() string {
 	}
 }
 
+func (m MarketType) base() string {
+	return strings.Split(m.string(), "/")[0]
+}
+
+func (m MarketType) quote() string {
+	return strings.Split(m.string(), "/")[1]
+}
+
 func (m MarketType) name() string {
 	return strings.ToLower(strings.Replace(m.string(), "/", "", 1))
 }
