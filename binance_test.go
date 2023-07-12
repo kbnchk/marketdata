@@ -8,10 +8,10 @@ import (
 
 func Test_binanceDOMResponse_toEntity(t *testing.T) {
 	tests := []struct {
-		name       string
-		response   binanceDOMResponse
-		markettype MarketType
-		want       DOM
+		name     string
+		response binanceDOMResponse
+		market   string
+		want     DOM
 	}{
 		{
 			name: "success",
@@ -25,11 +25,11 @@ func Test_binanceDOMResponse_toEntity(t *testing.T) {
 					{"93.20000000", "3975.00000000"},
 				},
 			},
-			markettype: USDTRUB,
+			market: "USDTRUB",
 			want: DOM{
 				Date:        time.Now().UTC().Round(1 * time.Second),
 				MarketPlace: "binance",
-				MarketName:  "USDT/RUB",
+				MarketName:  "USDTRUB",
 				Bids: []DOMPosition{
 					{
 						Price:  "93.18000000",
@@ -57,7 +57,7 @@ func Test_binanceDOMResponse_toEntity(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.response.toEntity(tt.markettype)
+			got := tt.response.toEntity(tt.market)
 			got.Date = got.Date.Round(1 * time.Second)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("binanceDOMResponse.toEntity() = %v, want %v", got, tt.want)

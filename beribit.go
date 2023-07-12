@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"golang.org/x/net/websocket"
@@ -22,13 +23,11 @@ func BeribitNew() Beribit {
 	}
 }
 
-func (b Beribit) GetDOM(m MarketType) (DOM, error) {
-	if m.string() == "unknown" {
-		return DOM{}, fmt.Errorf("unknown market type for Beribit marketplace")
-	}
+func (b Beribit) GetDOM(market string) (DOM, error) {
+
 	var resp beribitResponse
 	origin := "https://beribit.com/"
-	server := b.domURL + m.name()
+	server := b.domURL + strings.ToUpper(market)
 	conf, err := websocket.NewConfig(server, origin)
 	if err != nil {
 		return DOM{}, err
@@ -51,7 +50,7 @@ func (b Beribit) GetDOM(m MarketType) (DOM, error) {
 	if err != nil {
 		return DOM{}, err
 	}
-	result := resp.toEntity(m)
+	result := resp.toEntity(market)
 	return result, nil
 }
 
@@ -64,7 +63,7 @@ type beribitResponse struct {
 	} `json:"Depth"`
 }
 
-func (b beribitResponse) toEntity(m MarketType) DOM {
+func (b beribitResponse) toEntity(market string) DOM {
 	depth := b.Depth
 	bids := make([]DOMPosition, 0, len(depth.Bids))
 	asks := make([]DOMPosition, 0, len(depth.Asks))
@@ -76,7 +75,7 @@ func (b beribitResponse) toEntity(m MarketType) DOM {
 	}
 	return DOM{
 		MarketPlace: "beribit",
-		MarketName:  m.string(),
+		MarketName:  strings.ToUpper(market),
 		Date:        time.Unix(int64(depth.Timestamp), 0),
 		Bids:        bids,
 		Asks:        asks,

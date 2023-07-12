@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -24,11 +25,8 @@ func GarantexNew() Garantex {
 // Depth Of Market
 //####################################################################
 
-func (g Garantex) GetDOM(m MarketType) (DOM, error) {
-	if m.string() == "unknown" {
-		return DOM{}, fmt.Errorf("unknown market type for Garantex marketplace")
-	}
-	url := g.domURL + "?market=" + m.name()
+func (g Garantex) GetDOM(market string) (DOM, error) {
+	url := g.domURL + "?market=" + strings.ToLower(market)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return DOM{}, err
@@ -47,7 +45,7 @@ func (g Garantex) GetDOM(m MarketType) (DOM, error) {
 	if err != nil {
 		return DOM{}, err
 	}
-	result := model.toEntity(m)
+	result := model.toEntity(market)
 	return result, nil
 }
 
@@ -58,7 +56,7 @@ type garantexDOMResponse struct {
 	Asks      []garantexDOMPosition `json:"asks"`
 }
 
-func (b garantexDOMResponse) toEntity(m MarketType) DOM {
+func (b garantexDOMResponse) toEntity(market string) DOM {
 	bids := make([]DOMPosition, 0, len(b.Bids))
 	asks := make([]DOMPosition, 0, len(b.Asks))
 	for _, p := range b.Bids {
@@ -69,7 +67,7 @@ func (b garantexDOMResponse) toEntity(m MarketType) DOM {
 	}
 	return DOM{
 		MarketPlace: "garantex",
-		MarketName:  m.string(),
+		MarketName:  strings.ToUpper(market),
 		Date:        time.Unix(int64(b.Timestamp), 0),
 		Bids:        bids,
 		Asks:        asks,
@@ -95,11 +93,7 @@ func (p garantexDOMPosition) toEntity() DOMPosition {
 // History
 //####################################################################
 
-func (g Garantex) GetHistoryToDate(m MarketType, earliest time.Time) ([]HistoryPosition, error) {
-	if m.string() == "unknown" {
-		return nil, fmt.Errorf("unknown market type for Garantex marketplace")
-	}
-
+func (g Garantex) GetHistoryToDate(market string, earliest time.Time) ([]HistoryPosition, error) {
 	const limit = 1000
 	data := make([]garantexHistoryPosition, 0, limit)
 
@@ -112,7 +106,7 @@ func (g Garantex) GetHistoryToDate(m MarketType, earliest time.Time) ([]HistoryP
 			idstring = fmt.Sprintf("&to=%d", toID)
 		}
 
-		url := g.historyURL + "?market=" + m.name() + fmt.Sprintf("&limit=%d", limit) + idstring
+		url := g.historyURL + "?market=" + strings.ToLower(market) + fmt.Sprintf("&limit=%d", limit) + idstring
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			return err
@@ -165,11 +159,7 @@ func (g Garantex) GetHistoryToDate(m MarketType, earliest time.Time) ([]HistoryP
 	return result, nil
 }
 
-func (g Garantex) GetHistoryFromID(m MarketType, id uint) ([]HistoryPosition, error) {
-
-	if m.string() == "unknown" {
-		return nil, fmt.Errorf("unknown market type for Garantex marketplace")
-	}
+func (g Garantex) GetHistoryFromID(market string, id uint) ([]HistoryPosition, error) {
 
 	const limit = 1000
 	data := make([]garantexHistoryPosition, 0, limit)
@@ -177,7 +167,7 @@ func (g Garantex) GetHistoryFromID(m MarketType, id uint) ([]HistoryPosition, er
 	var getFrom func(uint, *[]garantexHistoryPosition) error
 	getFrom = func(fromID uint, data *[]garantexHistoryPosition) error {
 
-		url := g.historyURL + "?market=" + m.name() + fmt.Sprintf("&limit=%d", limit) + fmt.Sprintf("&order_by=asc&from=%d", fromID)
+		url := g.historyURL + "?market=" + strings.ToLower(market) + fmt.Sprintf("&limit=%d", limit) + fmt.Sprintf("&order_by=asc&from=%d", fromID)
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			return err

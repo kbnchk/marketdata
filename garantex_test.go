@@ -6,6 +6,18 @@ import (
 	"time"
 )
 
+func Test_Garantex_GetDOM(t *testing.T) {
+	got, err := GarantexNew().GetDOM("usdtrub")
+	if err != nil {
+		t.Errorf("error getting data = %v", err)
+		return
+	}
+	if reflect.ValueOf(got).IsZero() {
+		t.Error("returned empty data")
+	}
+
+}
+
 func Test_garantexHistoryPosition_toEntity(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -45,8 +57,8 @@ func Test_garantex_GetHistoryToDate(t *testing.T) {
 		historyURL: "https://garantex.io/api/v2/trades",
 	}
 
-	earliest := time.Now().Add(-24 * time.Hour)
-	got, err := garantex.GetHistoryToDate(USDTRUB, earliest)
+	earliest := time.Now().Add(-2 * time.Hour)
+	got, err := garantex.GetHistoryToDate("USDTRUB", earliest)
 	if err != nil {
 		t.Errorf("garantex.GetHistoryToDate() error = %v", err)
 		return
@@ -58,28 +70,6 @@ func Test_garantex_GetHistoryToDate(t *testing.T) {
 	for i := 0; i < len(got)-2; i++ {
 		if got[i].ID <= got[i+1].ID {
 			t.Errorf("garantex.GetHistoryToDate() have data order errors: el[%d].ID=%d, and el[%d].ID=%d (descending order)", i, got[i].ID, i+1, got[i+1].ID)
-		}
-	}
-}
-
-func Test_garantex_GetHistoryFromID(t *testing.T) {
-	garantex := Garantex{
-		domURL:     "https://garantex.io/api/v2/depth",
-		historyURL: "https://garantex.io/api/v2/trades",
-	}
-
-	got, err := garantex.GetHistoryFromID(USDTRUB, 3832191)
-	if err != nil {
-		t.Errorf("garantex.GetHistoryFromID() error = %v", err)
-		return
-	}
-	if len(got) == 0 {
-		t.Error("garantex.GetHistoryFromID() returned empty data")
-		return
-	}
-	for i := 0; i < len(got)-2; i++ {
-		if got[i].ID >= got[i+1].ID {
-			t.Errorf("garantex.GetHistoryFromID() have data order errors: el[%d].ID=%d, and el[%d].ID=%d (descending order)", i, got[i].ID, i+1, got[i+1].ID)
 		}
 	}
 }

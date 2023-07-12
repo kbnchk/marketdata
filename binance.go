@@ -2,7 +2,6 @@ package marketdata
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -30,7 +29,7 @@ type binanceDOMResponse struct {
 	Asks [][]string `json:"asks"`
 }
 
-func (r binanceDOMResponse) toEntity(m MarketType) DOM {
+func (r binanceDOMResponse) toEntity(market string) DOM {
 	bids := make([]DOMPosition, 0, len(r.Bids))
 	asks := make([]DOMPosition, 0, len(r.Asks))
 	for _, p := range r.Bids {
@@ -47,18 +46,15 @@ func (r binanceDOMResponse) toEntity(m MarketType) DOM {
 	}
 	return DOM{
 		MarketPlace: "binance",
-		MarketName:  m.string(),
+		MarketName:  strings.ToUpper(market),
 		Date:        time.Now().UTC(),
 		Bids:        bids,
 		Asks:        asks,
 	}
 }
 
-func (g Binance) GetDOM(m MarketType) (DOM, error) {
-	if m.string() == "unknown" {
-		return DOM{}, fmt.Errorf("unknown market type")
-	}
-	url := g.domURL + "?symbol=" + strings.ToUpper(m.name())
+func (g Binance) GetDOM(market string) (DOM, error) {
+	url := g.domURL + "?symbol=" + strings.ToUpper(market)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return DOM{}, err
@@ -77,6 +73,6 @@ func (g Binance) GetDOM(m MarketType) (DOM, error) {
 	if err != nil {
 		return DOM{}, err
 	}
-	result := model.toEntity(m)
+	result := model.toEntity(market)
 	return result, nil
 }

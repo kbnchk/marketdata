@@ -3,9 +3,9 @@ package marketdata
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -41,11 +41,7 @@ func (r binanceP2PDOMResponse) toPositions() []DOMPosition {
 	return result
 }
 
-func (g BinanceP2P) GetDOM(m MarketType) (DOM, error) {
-	if m.string() == "unknown" {
-		return DOM{}, fmt.Errorf("unknown market type")
-	}
-
+func (g BinanceP2P) GetDOM(fiat, asset string) (DOM, error) {
 	get := func(body []byte) ([]DOMPosition, error) {
 		responseBody := bytes.NewBuffer(body)
 		req, err := http.NewRequest("POST", g.domURL, responseBody)
@@ -72,18 +68,18 @@ func (g BinanceP2P) GetDOM(m MarketType) (DOM, error) {
 	}
 
 	bidsPostBody, _ := json.Marshal(map[string]any{
-		"fiat":      m.quote(),
+		"fiat":      strings.ToUpper(fiat),
 		"page":      1,
 		"rows":      10,
 		"tradeType": "SELL",
-		"asset":     m.base(),
+		"asset":     strings.ToUpper(asset),
 	})
 	asksPostBody, _ := json.Marshal(map[string]any{
-		"fiat":      m.quote(),
+		"fiat":      strings.ToUpper(fiat),
 		"page":      1,
 		"rows":      10,
 		"tradeType": "BUY",
-		"asset":     m.base(),
+		"asset":     strings.ToUpper(asset),
 	})
 
 	bids, err := get(bidsPostBody)
@@ -96,7 +92,7 @@ func (g BinanceP2P) GetDOM(m MarketType) (DOM, error) {
 	}
 	return DOM{
 		MarketPlace: "Binance P2P",
-		MarketName:  m.string(),
+		MarketName:  strings.ToUpper(asset + fiat),
 		Date:        time.Now().UTC(),
 		Bids:        bids,
 		Asks:        asks,
