@@ -14,6 +14,16 @@ type BinanceP2P struct {
 	//historyURL string
 }
 
+type BinanceP2PConfig struct {
+	Fiat      string   // fiat currency ticker
+	Asset     string   // asset curency ticker
+	Page      int      // amount of pages
+	Rows      int      // amount of rows on each page
+	Countries []string // Countries for fiat currency
+	PayTypes  []string // Payment types
+
+}
+
 func BinanceP2PNew() BinanceP2P {
 	return BinanceP2P{
 		domURL: "https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search",
@@ -41,7 +51,7 @@ func (r binanceP2PDOMResponse) toPositions() []DOMPosition {
 	return result
 }
 
-func (g BinanceP2P) GetDOM(fiat, asset string) (DOM, error) {
+func (g BinanceP2P) GetDOM(config BinanceP2PConfig) (DOM, error) {
 	get := func(body []byte) ([]DOMPosition, error) {
 		responseBody := bytes.NewBuffer(body)
 		req, err := http.NewRequest("POST", g.domURL, responseBody)
@@ -68,18 +78,28 @@ func (g BinanceP2P) GetDOM(fiat, asset string) (DOM, error) {
 	}
 
 	bidsPostBody, _ := json.Marshal(map[string]any{
-		"fiat":      strings.ToUpper(fiat),
-		"page":      1,
-		"rows":      10,
-		"tradeType": "SELL",
-		"asset":     strings.ToUpper(asset),
+		"fiat":              strings.ToUpper(config.Fiat),
+		"asset":             strings.ToUpper(config.Asset),
+		"page":              config.Page,
+		"rows":              config.Rows,
+		"tradeType":         "SELL",
+		"payTypes":          config.PayTypes,
+		"countries":         config.Countries,
+		"proMerchantAds":    false,
+		"shieldMerchantAds": false,
+		"publisherType":     nil,
 	})
 	asksPostBody, _ := json.Marshal(map[string]any{
-		"fiat":      strings.ToUpper(fiat),
-		"page":      1,
-		"rows":      10,
-		"tradeType": "BUY",
-		"asset":     strings.ToUpper(asset),
+		"fiat":              config.Fiat,
+		"asset":             config.Asset,
+		"page":              config.Page,
+		"rows":              config.Rows,
+		"tradeType":         "BUY",
+		"payTypes":          config.PayTypes,
+		"countries":         config.Countries,
+		"proMerchantAds":    false,
+		"shieldMerchantAds": false,
+		"publisherType":     nil,
 	})
 
 	bids, err := get(bidsPostBody)
@@ -92,7 +112,7 @@ func (g BinanceP2P) GetDOM(fiat, asset string) (DOM, error) {
 	}
 	return DOM{
 		MarketPlace: "Binance P2P",
-		MarketName:  strings.ToUpper(asset + fiat),
+		MarketName:  strings.ToUpper(config.Fiat + config.Asset),
 		Date:        time.Now().UTC(),
 		Bids:        bids,
 		Asks:        asks,
