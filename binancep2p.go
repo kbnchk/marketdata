@@ -112,7 +112,7 @@ func (g BinanceP2P) GetDOM(config BinanceP2PConfig) (DOM, error) {
 	}
 	return DOM{
 		MarketPlace: "Binance P2P",
-		MarketName:  strings.ToUpper(config.Fiat + config.Asset),
+		MarketName:  strings.ToUpper(config.Asset + config.Fiat),
 		Date:        time.Now().UTC(),
 		Bids:        bids,
 		Asks:        asks,
