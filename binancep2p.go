@@ -34,23 +34,6 @@ func BinanceP2PNew() BinanceP2P {
 // Depth Of Market
 //####################################################################
 
-type binanceP2PDOMResponse struct {
-	Data []struct {
-		Adv struct {
-			Price  string `json:"price"`
-			Amount string `json:"tradableQuantity"`
-		} `json:"adv"`
-	} `json:"data"`
-}
-
-func (r binanceP2PDOMResponse) toPositions() []DOMPosition {
-	result := make([]DOMPosition, 0, len(r.Data))
-	for _, p := range r.Data {
-		result = append(result, DOMPosition(p.Adv))
-	}
-	return result
-}
-
 func (g BinanceP2P) GetDOM(config BinanceP2PConfig) (DOM, error) {
 	get := func(body []byte) ([]DOMPosition, error) {
 		responseBody := bytes.NewBuffer(body)
@@ -90,8 +73,8 @@ func (g BinanceP2P) GetDOM(config BinanceP2PConfig) (DOM, error) {
 		"publisherType":     nil,
 	})
 	asksPostBody, _ := json.Marshal(map[string]any{
-		"fiat":              config.Fiat,
-		"asset":             config.Asset,
+		"fiat":              strings.ToUpper(config.Fiat),
+		"asset":             strings.ToUpper(config.Asset),
 		"page":              config.Page,
 		"rows":              config.Rows,
 		"tradeType":         "BUY",
@@ -111,10 +94,26 @@ func (g BinanceP2P) GetDOM(config BinanceP2PConfig) (DOM, error) {
 		return DOM{}, err
 	}
 	return DOM{
-		MarketPlace: "Binance P2P",
-		MarketName:  strings.ToUpper(config.Asset + config.Fiat),
-		Date:        time.Now().UTC(),
-		Bids:        bids,
-		Asks:        asks,
+		Date: time.Now().UTC(),
+		Bids: bids,
+		Asks: asks,
 	}, nil
+}
+
+// binanceP2PDOM responce
+type binanceP2PDOMResponse struct {
+	Data []struct {
+		Adv struct {
+			Price  string `json:"price"`
+			Amount string `json:"tradableQuantity"`
+		} `json:"adv"`
+	} `json:"data"`
+}
+
+func (r binanceP2PDOMResponse) toPositions() []DOMPosition {
+	result := make([]DOMPosition, 0, len(r.Data))
+	for _, p := range r.Data {
+		result = append(result, DOMPosition(p.Adv))
+	}
+	return result
 }

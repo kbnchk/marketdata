@@ -74,11 +74,9 @@ func (b beribitResponse) toEntity(market string) DOM {
 		asks = append(asks, p.toEntity())
 	}
 	return DOM{
-		MarketPlace: "beribit",
-		MarketName:  strings.ToUpper(market),
-		Date:        time.Unix(int64(depth.Timestamp), 0),
-		Bids:        bids,
-		Asks:        asks,
+		Date: time.Unix(int64(depth.Timestamp), 0),
+		Bids: bids,
+		Asks: asks,
 	}
 }
 

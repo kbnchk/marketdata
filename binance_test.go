@@ -27,9 +27,7 @@ func Test_binanceDOMResponse_toEntity(t *testing.T) {
 			},
 			market: "USDTRUB",
 			want: DOM{
-				Date:        time.Now().UTC().Round(1 * time.Second),
-				MarketPlace: "binance",
-				MarketName:  "USDTRUB",
+				Date: time.Now().UTC().Round(1 * time.Second),
 				Bids: []DOMPosition{
 					{
 						Price:  "93.18000000",

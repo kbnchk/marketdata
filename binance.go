@@ -45,11 +45,9 @@ func (r binanceDOMResponse) toEntity(market string) DOM {
 		})
 	}
 	return DOM{
-		MarketPlace: "binance",
-		MarketName:  strings.ToUpper(market),
-		Date:        time.Now().UTC(),
-		Bids:        bids,
-		Asks:        asks,
+		Date: time.Now().UTC(),
+		Bids: bids,
+		Asks: asks,
 	}
 }
 

@@ -5,11 +5,9 @@ import (
 )
 
 type DOM struct {
-	MarketPlace string
-	MarketName  string
-	Date        time.Time
-	Bids        []DOMPosition
-	Asks        []DOMPosition
+	Date time.Time
+	Bids []DOMPosition
+	Asks []DOMPosition
 }
 
 type DOMPosition struct {
@@ -22,5 +20,4 @@ type HistoryPosition struct {
 	Date   time.Time
 	Price  string // цена
 	Volume string // сумма в базовой валюте
-	Funds  string // сумма в валюте котировки
 }
