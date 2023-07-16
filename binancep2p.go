@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type BinanceP2P struct {
+type binanceP2P struct {
 	domURL string
 	//historyURL string
 }
@@ -24,8 +24,8 @@ type BinanceP2PConfig struct {
 
 }
 
-func BinanceP2PNew() BinanceP2P {
-	return BinanceP2P{
+func BinanceP2P() binanceP2P {
+	return binanceP2P{
 		domURL: "https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search",
 	}
 }
@@ -34,7 +34,7 @@ func BinanceP2PNew() BinanceP2P {
 // Depth Of Market
 //####################################################################
 
-func (g BinanceP2P) GetDOM(config BinanceP2PConfig) (DOM, error) {
+func (g binanceP2P) GetDOM(config BinanceP2PConfig) (DOM, error) {
 	get := func(body []byte) ([]DOMPosition, error) {
 		responseBody := bytes.NewBuffer(body)
 		req, err := http.NewRequest("POST", g.domURL, responseBody)

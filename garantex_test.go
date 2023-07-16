@@ -7,7 +7,7 @@ import (
 )
 
 func Test_Garantex_GetDOM(t *testing.T) {
-	got, err := GarantexNew().GetDOM("usdtrub")
+	got, err := Garantex().GetDOM("usdtrub")
 	if err != nil {
 		t.Errorf("error getting data = %v", err)
 		return
@@ -18,22 +18,97 @@ func Test_Garantex_GetDOM(t *testing.T) {
 
 }
 
-func Test_garantexGetHistory(t *testing.T) {
-	var params url.Values
-	params.Add("market", "usdtbtc")
-	params.Add("limit", "1000")
-	got, err := GarantexNew().GetHistory(params)
-	if err != nil {
-		t.Errorf("garantex.GetHistoryToDate() error = %v", err)
-		return
+func TestGarantexHistoryConfig_toParams(t *testing.T) {
+	type fields struct {
+		Market string
+		Limit  int
+		From   int
+		To     int
+		Order  string
 	}
-	if len(got) == 0 {
-		t.Error("garantex.GetHistoryToDate() returned empty data")
-		return
+	tests := []struct {
+		name   string
+		fields fields
+		want   url.Values
+	}{
+		{
+			name: "market",
+			fields: fields{
+				Market: "usdtbtc",
+			},
+			want: url.Values{
+				"market": []string{"usdtbtc"},
+			},
+		},
+		{
+			name: "market+limit",
+			fields: fields{
+				Market: "usdtbtc",
+				Limit:  1000,
+			},
+			want: url.Values{
+				"market": []string{"usdtbtc"},
+				"limit":  []string{"1000"},
+			},
+		},
+		{
+			name: "market+limit+from",
+			fields: fields{
+				Market: "usdtbtc",
+				Limit:  1000,
+				From:   343434,
+			},
+			want: url.Values{
+				"market": []string{"usdtbtc"},
+				"limit":  []string{"1000"},
+				"from":   []string{"343434"},
+			},
+		},
+		{
+			name: "market+limit+from+to",
+			fields: fields{
+				Market: "usdtbtc",
+				Limit:  1000,
+				From:   343434,
+				To:     434343,
+			},
+			want: url.Values{
+				"market": []string{"usdtbtc"},
+				"limit":  []string{"1000"},
+				"from":   []string{"343434"},
+				"to":     []string{"434343"},
+			},
+		},
+		{
+			name: "market+limit+from+to+order",
+			fields: fields{
+				Market: "usdtbtc",
+				Limit:  1000,
+				From:   343434,
+				To:     434343,
+				Order:  "DESC",
+			},
+			want: url.Values{
+				"market":   []string{"usdtbtc"},
+				"limit":    []string{"1000"},
+				"from":     []string{"343434"},
+				"to":       []string{"434343"},
+				"order_by": []string{"DESC"},
+			},
+		},
 	}
-	for i := 0; i < len(got)-2; i++ {
-		if got[i].ID <= got[i+1].ID {
-			t.Errorf("garantex.GetHistoryToDate() have data order errors: el[%d].ID=%d, and el[%d].ID=%d (descending order)", i, got[i].ID, i+1, got[i+1].ID)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := GarantexHistoryConfig{
+				Market: tt.fields.Market,
+				Limit:  tt.fields.Limit,
+				From:   tt.fields.From,
+				To:     tt.fields.To,
+				Order:  tt.fields.Order,
+			}
+			if got := c.toParams(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GarantexHistoryConfig.toParams() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

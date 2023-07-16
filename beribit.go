@@ -12,18 +12,18 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-type Beribit struct {
+type beribit struct {
 	domURL string
 	//historyURL string
 }
 
-func BeribitNew() Beribit {
-	return Beribit{
+func Beribit() beribit {
+	return beribit{
 		domURL: "wss://beribit.com/ws/depth/",
 	}
 }
 
-func (b Beribit) GetDOM(market string) (DOM, error) {
+func (b beribit) GetDOM(market string) (DOM, error) {
 
 	var resp beribitResponse
 	origin := "https://beribit.com/"

@@ -6,7 +6,7 @@ import (
 )
 
 func TestBinanceP2P_GetDOM(t *testing.T) {
-	source := BinanceP2PNew()
+	source := BinanceP2P()
 	config := BinanceP2PConfig{
 		Fiat:      "USD",
 		Asset:     "USDT",

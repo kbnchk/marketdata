@@ -5,21 +5,25 @@ Currently it supports:
 - beribit.com,
 - binance
 - binance p2p.
+
 Library is in early development.
 
 ### Usage examples:
 
 ```go
-data, err := marketdata.GarantexNew().GetDOM("usdtrub")
+data, err := marketdata.Garantex().GetDOM("usdtrub")
 if err != nil {
     panic(err)
 }
 ```
 ```go
-var params url.Values
-	params.Add("market", "usdtbtc")
-	params.Add("limit", "1000")
-data, err := marketdata.GarantexNew().GetHistory(params)
+config := GarantexHistoryConfig{
+	Market: "usdtbtc",
+	Limit:  1000,
+	From:   343434,
+}
+
+data, err := marketdata.Garantex().GetHistory(config)
 if err != nil {
     panic(err)
 }
@@ -31,9 +35,8 @@ config := BinanceP2PConfig{
 		Page:      1,
 		Rows:      10,
 		Countries: []string{"AE"},
-		PayTypes:  []string{},
 	}
-data, err := BinanceP2PNew().GetDOM(config)
+data, err := BinanceP2P().GetDOM(config)
 if err != nil {
     panic(err)
 }

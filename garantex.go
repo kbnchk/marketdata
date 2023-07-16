@@ -5,15 +5,16 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 )
 
-type Garantex struct {
+type garantex struct {
 	baseurl, api, dom, history string
 }
 
-func GarantexNew() Garantex {
-	return Garantex{
+func Garantex() garantex {
+	return garantex{
 		baseurl: "https://garantex.io",
 		api:     "api/v2",
 		dom:     "/depth",
@@ -28,9 +29,9 @@ func GarantexNew() Garantex {
 // GetDOM recieves depth of market
 //
 // Availible markets:  btcrub, usdtrub, dairub, ethrub, usdcrub, btcusdt, ethbtc, ethusdt, usdcusdt
-func (g Garantex) GetDOM(market string) (DOM, error) {
+func (g garantex) GetDOM(market string) (DOM, error) {
 	u, _ := url.ParseRequestURI(g.baseurl)
-	u.Path = g.api + g.history
+	u.Path = g.api + g.dom
 	params := url.Values{"market": []string{market}}
 	u.RawQuery = params.Encode()
 
@@ -90,17 +91,35 @@ func (p garantexDOMPosition) toEntity() DOMPosition {
 
 // History
 
+type GarantexHistoryConfig struct {
+	Market string // btcrub, usdtrub, dairub, ethrub, usdcrub, btcusdt, ethbtc, ethusdt, usdcusdt
+	Limit  int    // optional records amount (default 50, max 1000)
+	From   int    // optional trade ID to get data from (but not including)
+	To     int    // optional trade ID to get data to (but not including)
+	Order  string // optional sorting order ASC DESC
+}
+
+func (c GarantexHistoryConfig) toParams() url.Values {
+	values := make(url.Values)
+	values.Add("market", c.Market)
+	if c.Limit != 0 {
+		values.Add("limit", strconv.Itoa(c.Limit))
+	}
+	if c.From != 0 {
+		values.Add("from", strconv.Itoa(c.From))
+	}
+	if c.To != 0 {
+		values.Add("to", strconv.Itoa(c.To))
+	}
+	if c.Order != "" {
+		values.Add("order_by", c.Order)
+	}
+	return values
+}
+
 // GetHistory recieves market trading history.
-//
-// Available parms:
-//
-//	"market" btcrub, usdtrub, dairub, ethrub, usdcrub, btcusdt, ethbtc, ethusdt, usdcusdt
-//	"limit" records amount (default 50, max 1000);
-//	"from" trade ID to get data from (but not including);
-//	"to" trade ID to get data to (but not including)
-//	"order_by" sorting order ASC DESC
-func (g Garantex) GetHistory(params url.Values) ([]HistoryPosition, error) {
-	raw, err := g.getHistory(params)
+func (g garantex) GetHistory(config GarantexHistoryConfig) ([]HistoryPosition, error) {
+	raw, err := g.getHistory(config.toParams())
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +127,7 @@ func (g Garantex) GetHistory(params url.Values) ([]HistoryPosition, error) {
 
 }
 
-func (g Garantex) getHistory(params url.Values) (garantexHistoryResponce, error) {
+func (g garantex) getHistory(params url.Values) (garantexHistoryResponce, error) {
 	u, _ := url.ParseRequestURI(g.baseurl)
 	u.Path = g.api + g.history
 	u.RawQuery = params.Encode()

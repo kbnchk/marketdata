@@ -8,13 +8,13 @@ import (
 	"time"
 )
 
-type Binance struct {
+type binance struct {
 	domURL string
 	//historyURL string
 }
 
-func BinanceNew() Binance {
-	return Binance{
+func Binance() binance {
+	return binance{
 		domURL: "https://api.binance.com/api/v3/depth",
 	}
 }
@@ -51,7 +51,7 @@ func (r binanceDOMResponse) toEntity(market string) DOM {
 	}
 }
 
-func (g Binance) GetDOM(market string) (DOM, error) {
+func (g binance) GetDOM(market string) (DOM, error) {
 	url := g.domURL + "?symbol=" + strings.ToUpper(market)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
