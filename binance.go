@@ -2,6 +2,7 @@ package marketdata
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -53,16 +54,16 @@ func (r binanceDOMResponse) toEntity(market string) DOM {
 
 func (g binance) GetDOM(market string) (DOM, error) {
 	url := g.domURL + "?symbol=" + strings.ToUpper(market)
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return DOM{}, err
-	}
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := http.Get(url)
 	if err != nil {
 		return DOM{}, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return DOM{}, fmt.Errorf("request returned bad status code %s", resp.Status)
+	}
+
 	respBody, _ := io.ReadAll(resp.Body)
 	respBytes := []byte(respBody)
 

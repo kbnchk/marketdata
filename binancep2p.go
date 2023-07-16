@@ -3,6 +3,7 @@ package marketdata
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -37,17 +38,16 @@ func BinanceP2P() binanceP2P {
 func (g binanceP2P) GetDOM(config BinanceP2PConfig) (DOM, error) {
 	get := func(body []byte) ([]DOMPosition, error) {
 		responseBody := bytes.NewBuffer(body)
-		req, err := http.NewRequest("POST", g.domURL, responseBody)
-		req.Header.Add("Content-Type", "application/json")
-		if err != nil {
-			return nil, err
-		}
-		client := &http.Client{}
-		resp, err := client.Do(req)
+		resp, err := http.Post(g.domURL, "application/json", responseBody)
 		if err != nil {
 			return nil, err
 		}
 		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			return nil, fmt.Errorf("request returned bad status code %s", resp.Status)
+		}
+
 		respBody, _ := io.ReadAll(resp.Body)
 		respBytes := []byte(respBody)
 
