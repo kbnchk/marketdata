@@ -112,3 +112,43 @@ func TestGarantexHistoryConfig_toParams(t *testing.T) {
 		})
 	}
 }
+
+func Test_garantex_GetHistory(t *testing.T) {
+	tests := []struct {
+		name    string
+		config  GarantexHistoryConfig
+		wantErr bool
+	}{
+		{
+			name: "default",
+			config: GarantexHistoryConfig{
+				Market: "usdtrub",
+				Limit:  1000,
+			},
+			wantErr: false,
+		},
+		{
+			name: "badmarket",
+			config: GarantexHistoryConfig{
+				Market: "badmarket",
+				Limit:  1000,
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := Garantex().GetHistory(tt.config)
+			if err != nil {
+				if !tt.wantErr {
+					t.Errorf("garantex.GetHistory() error = %v, wantErr %v", err, tt.wantErr)
+				}
+				return
+			}
+
+			if len(got) < tt.config.Limit {
+				t.Errorf("garantex.GetHistory() returned %d records, limit = %d", len(got), tt.config.Limit)
+			}
+		})
+	}
+}
