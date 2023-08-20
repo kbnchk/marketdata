@@ -16,7 +16,7 @@ type garantex struct {
 
 func Garantex() garantex {
 	return garantex{
-		baseurl: "https://garantex.io",
+		baseurl: "https://garantex.org",
 		api:     "api/v2",
 		dom:     "/depth",
 		history: "/trades",
